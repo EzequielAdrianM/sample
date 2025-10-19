@@ -8,3 +8,6 @@ boto3
 python-multipart
 python-dotenv
 pydantic[email]
+passlib[bcrypt]
+python-jose[cryptography]
+slowapi
