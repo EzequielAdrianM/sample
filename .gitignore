@@ -1,9 +1,13 @@
 # Ignorar la carpeta del entorno virtual de Python
 venv/
-
-# También es común ignorar estos archivos
+env/
 __pycache__/
 *.pyc
+*.pyo
+
+#SQlite
+*.db
+*.sqlite3
 
 # Archivo de variables de entorno (Contiene datos sensibles)
 .env
