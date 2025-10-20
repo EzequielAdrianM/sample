@@ -7,8 +7,8 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
 import os
 from dotenv import load_dotenv
-from database import get_db
-import models
+from database.connection import get_db
+from database.entities.user import User
 
 load_dotenv()
 
@@ -43,7 +43,7 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
-def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security), db: Session = Depends(get_db)) -> models.User:
+def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security), db: Session = Depends(get_db)) -> User:
     """Extrae y valida el usuario del token JWT"""
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -60,15 +60,15 @@ def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(securit
     except JWTError:
         raise credentials_exception
     
-    user = db.query(models.User).filter(models.User.email == email).first()
+    user = db.query(User).filter(User.email == email).first()
     if user is None:
         raise credentials_exception
     
     return user
 
 def get_current_active_user(
-    current_user: models.User = Depends(get_current_user)
-) -> models.User:
+    current_user: User = Depends(get_current_user)
+) -> User:
     """Check if user is active"""
     if not current_user.activo:
         raise HTTPException(
