@@ -66,13 +66,19 @@ def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(securit
     
     return user
 
-def get_current_active_user(
-    current_user: User = Depends(get_current_user)
-) -> User:
+def get_current_active_user(current_user: User = Depends(get_current_user)) -> User:
     """Check if user is active"""
     if not current_user.activo:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="User inactive"
         )
+    return current_user
+
+def activate_account(current_user: User, db: Session) -> User:
+    if not current_user.activo:
+        #user = db.query(User).filter(User.id == current_user.id).first() #Not needed. redundant.
+        current_user.activo = True #Direct modification works (such as in Django ORM)
+        db.commit()
+        db.refresh(current_user)
     return current_user

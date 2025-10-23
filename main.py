@@ -3,12 +3,12 @@ from contextlib import asynccontextmanager
 from database.connection import engine, get_db, Base
 from dotenv import load_dotenv
 from kafka_config import start_kafka, stop_kafka
-from api import user
+from api import user, todo
 
 load_dotenv()
 
 # Uncomment this only when first starting the app, to create new tables.
-#Base.metadata.create_all(bind=engine)
+Base.metadata.create_all(bind=engine)
 
 
 
@@ -28,3 +28,4 @@ app = FastAPI(lifespan=lifespan)
 
 #Register routes
 app.include_router(user.router, prefix="/api")
+app.include_router(todo.router, prefix="/api")

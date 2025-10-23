@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from models.user import UserResponse, UserCreate, LoginRequest, Token, PasswordChange
 from database.entities.user import User
 from kafka_config import publish_event
-from services.auth import get_password_hash, verify_password, create_access_token, get_current_user, get_current_active_user, ACCESS_TOKEN_EXPIRE_MINUTES
+from services.auth_service import get_password_hash, verify_password, create_access_token, get_current_user, get_current_active_user, ACCESS_TOKEN_EXPIRE_MINUTES
 import boto3
 import os
 
@@ -53,7 +53,7 @@ async def create_user(db: Session, usuario: UserCreate) -> UserResponse:
 
     return db_usuario
 
-def login(db: Session, login_data: LoginRequest) -> Token:
+def login(login_data: LoginRequest, db: Session) -> Token:
     # Check user existence
     usuario = db.query(User).filter(User.email == login_data.email).first()
     
@@ -77,7 +77,7 @@ def login(db: Session, login_data: LoginRequest) -> Token:
         "token_type": "bearer"
     }
 
-def change_password(db: Session, password_data: PasswordChange, current_user: User) -> str:
+def change_password(password_data: PasswordChange, db: Session, current_user: User) -> str:
     # Check current password
     if not verify_password(password_data.current_password, current_user.hashed_password):
         raise HTTPException(
